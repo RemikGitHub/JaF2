@@ -1,0 +1,114 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema readstack
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema readstack
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `readstack` DEFAULT CHARACTER SET utf8 ;
+USE `readstack` ;
+
+-- -----------------------------------------------------
+-- Table `readstack`.`category`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `readstack`.`category` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NOT NULL,
+  `description` VARCHAR(500) NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `readstack`.`user`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `readstack`.`user` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(50) NOT NULL,
+  `email` VARCHAR(100) NOT NULL,
+  `password` VARCHAR(100) NOT NULL,
+  `registration_date` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `readstack`.`discovery`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `readstack`.`discovery` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(80) NOT NULL,
+  `url` VARCHAR(500) NOT NULL,
+  `description` VARCHAR(500) NOT NULL,
+  `date_added` DATETIME NOT NULL,
+  `category_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `url_UNIQUE` (`url` ASC) VISIBLE,
+  INDEX `fk_discovery_category1_idx` (`category_id` ASC) VISIBLE,
+  INDEX `fk_discovery_user1_idx` (`user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_discovery_category1`
+    FOREIGN KEY (`category_id`)
+    REFERENCES `readstack`.`category` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_discovery_user1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `readstack`.`user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `readstack`.`user_role`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `readstack`.`user_role` (
+  `role_name` VARCHAR(20) NOT NULL DEFAULT USER,
+  `username` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`role_name`, `username`),
+  INDEX `fk_user_username_idx` (`username` ASC) VISIBLE,
+  CONSTRAINT `fk_user_username`
+    FOREIGN KEY (`username`)
+    REFERENCES `readstack`.`user` (`username`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `readstack`.`vote`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `readstack`.`vote` (
+  `discovery_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  `date_added` DATETIME NOT NULL,
+  `type` ENUM('UP', 'DOWN') NOT NULL,
+  PRIMARY KEY (`discovery_id`, `user_id`),
+  INDEX `fk_discovery_has_user_user1_idx` (`user_id` ASC) VISIBLE,
+  INDEX `fk_discovery_has_user_discovery1_idx` (`discovery_id` ASC) VISIBLE,
+  CONSTRAINT `fk_discovery_has_user_discovery1`
+    FOREIGN KEY (`discovery_id`)
+    REFERENCES `readstack`.`discovery` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_discovery_has_user_user1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `readstack`.`user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

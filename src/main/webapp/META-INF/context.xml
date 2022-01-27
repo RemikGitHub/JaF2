@@ -1,0 +1,25 @@
+<Context>
+    <Resource name="jdbc/database"
+              factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+              type="javax.sql.DataSource"
+              username="root"
+              password="zaq1@WSX"
+              driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/database?serverTimezone=UTC"/>
+    <Realm className="org.apache.catalina.realm.DataSourceRealm"
+           dataSourceName="jdbc/database"
+           localDataSource="true"
+           userTable="users"
+           userNameCol="username"
+           userCredCol="password"
+           userRoleTable="user_role"
+           roleNameCol="role_name">
+        <CredentialHandler className="org.apache.catalina.realm.NestedCredentialHandler">
+            <CredentialHandler
+                    className="org.apache.catalina.realm.MessageDigestCredentialHandler"
+                    algorithm="SHA-256" />
+            <CredentialHandler
+                    className="org.apache.catalina.realm.MessageDigestCredentialHandler"/>
+        </CredentialHandler>
+    </Realm>
+</Context>
